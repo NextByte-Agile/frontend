@@ -1,4 +1,4 @@
-import vehicles from "../data/vehicles";
+import vehicles from "../public/data/vehicles";
 
 const VehicleTable = () => {
   return (

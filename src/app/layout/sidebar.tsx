@@ -1,11 +1,18 @@
+import Image from "next/image";
+import logo from "../../public/images/logo.jpg"
+import Link from "next/link";
+
 const Sidebar = () => {
   return (
     <div className="w-64 h-screen bg-gray-800 text-white flex flex-col p-4">
-      <h2 className="text-2xl font-bold mb-6">Gestión de Flota</h2>
+      <Image src={logo} width={200} height={200} alt="Logo" className="mx-auto rounded-md my-8" />
       <nav className="flex flex-col gap-4">
-        <a href="/vehicles" className="hover:bg-gray-700 p-2 rounded">
+        <Link href="/vehicles" className="hover:bg-gray-700 p-2 rounded">
           Vehículos
-        </a>
+        </Link>
+        <Link href="/vehicles" className="hover:bg-gray-700 p-2 rounded">
+          Rutas
+        </Link>
       </nav>
     </div>
   );
