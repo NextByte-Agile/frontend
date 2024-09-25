@@ -1,4 +1,4 @@
-import VehicleTable from '../../components/VehicleTable';
+import VehicleTable from '@/components/VehicleTable';
 
 const VehiculosPage = () => {
   return (

@@ -1,20 +1,13 @@
-// src/app/rutas/page.tsx
 "use client";
-import { useState } from "react";
-import { rutas } from "../../public/data/rutas";
-import { viajes } from "../../public/data/viajes";
-import vehicles from "../../public/data/vehiculos";
+import { useRouter } from "next/navigation";
+import { rutas } from "/public/data/rutas";
 
 export default function RutasPage() {
-  const [selectedRuta, setSelectedRuta] = useState<number | null>(null);
+  const router = useRouter();
 
   const handleRutaClick = (id: number) => {
-    setSelectedRuta(id === selectedRuta ? null : id);
+    router.push(`/rutas/${id}`);
   };
-
-  const viajesDeRutaSeleccionada = viajes.filter(
-    (viaje) => viaje.rutaId === selectedRuta
-  );
 
   return (
     <div className="p-8">
@@ -39,43 +32,6 @@ export default function RutasPage() {
                 />
               ))}
             </div>
-            {/* Mostrar la lista de próximos viajes si la ruta está seleccionada */}
-            {selectedRuta === ruta.id && (
-              <div className="mt-4">
-                <h3 className="font-semibold">Próximos Viajes:</h3>
-                <ul className="list-disc list-inside">
-                  {viajesDeRutaSeleccionada.length > 0 ? (
-                    viajesDeRutaSeleccionada.map((viaje, idx) => {
-                      // Encontrar el vehículo correspondiente al viaje
-                      const vehiculo = vehicles.find(
-                        (v) => v.id === viaje.vehiculoId
-                      );
-
-                      return (
-                        <li key={idx} className="mt-2">
-                          <div>
-                            <strong>Fecha:</strong> {viaje.fecha} -{" "}
-                            <strong>Hora:</strong> {viaje.hora}
-                          </div>
-                          <div>
-                            <strong>Precio:</strong> S/{" "}
-                            {viaje.precio.toFixed(2)}
-                          </div>
-                          {vehiculo && (
-                            <div>
-                              <strong>Vehículo:</strong> {vehiculo.brand}{" "}
-                              {vehiculo.model} ({vehiculo.plate})
-                            </div>
-                          )}
-                        </li>
-                      );
-                    })
-                  ) : (
-                    <li>No hay viajes programados para esta ruta.</li>
-                  )}
-                </ul>
-              </div>
-            )}
           </div>
         ))}
       </div>
