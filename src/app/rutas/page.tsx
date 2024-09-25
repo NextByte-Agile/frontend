@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { rutas } from "/public/data/rutas";
+import { rutas } from "../../../public/data/rutas";
 
 export default function RutasPage() {
   const router = useRouter();
