@@ -7,10 +7,10 @@ const Sidebar = () => {
     <div className="w-64 h-screen bg-gray-800 text-white flex flex-col p-4">
       <Image src={logo} width={200} height={200} alt="Logo" className="mx-auto rounded-md my-8" />
       <nav className="flex flex-col gap-4">
-        <Link href="/vehicles" className="hover:bg-gray-700 p-2 rounded">
+        <Link href="/vehiculos" className="hover:bg-gray-700 p-2 rounded">
           Vehículos
         </Link>
-        <Link href="/vehicles" className="hover:bg-gray-700 p-2 rounded">
+        <Link href="/rutas" className="hover:bg-gray-700 p-2 rounded">
           Rutas
         </Link>
       </nav>

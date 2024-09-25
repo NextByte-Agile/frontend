@@ -1,4 +1,4 @@
-import vehicles from "../public/data/vehicles";
+import vehiculos from "../public/data/vehiculos";
 
 const VehicleTable = () => {
   return (
@@ -12,7 +12,7 @@ const VehicleTable = () => {
         </tr>
       </thead>
       <tbody>
-        {vehicles.map((vehicle, index) => (
+        {vehiculos.map((vehicle, index) => (
           <tr key={index} className="border-b text-center">
             <td className="py-2 px-4">{vehicle.plate}</td>
             <td className="py-2 px-4">{vehicle.brand}</td>

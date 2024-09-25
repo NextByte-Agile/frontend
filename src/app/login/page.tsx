@@ -8,7 +8,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    router.push("/vehicles");
+    router.push("/vehiculos");
   };
 
   return (
