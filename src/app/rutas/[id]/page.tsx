@@ -36,8 +36,8 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
   if (!ruta) return null;
 
   const handleAddViajeClick = () => {
-    setNewViaje(initialNewViajeState); // Reset form fields
-    setError(null); // Reset error
+    setNewViaje(initialNewViajeState);
+    setError(null);
     setIsPopupOpen(true);
   };
 

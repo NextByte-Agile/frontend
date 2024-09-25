@@ -40,6 +40,16 @@ const vehiculos: Vehiculo[] = [
     lastMaintenance: "2024-08-20",
     nextMaintenance: "2025-02-20",
   },
+  {
+    id: 4,
+    plate: "ASD-159",
+    brand: "JAC",
+    model: "Refine",
+    year: 2022,
+    img: "/images/vehiculos/JAC_Refine.jpg",
+    lastMaintenance: "2024-07-30",
+    nextMaintenance: "2025-01-30",
+  },
 ];
 
 export default vehiculos;

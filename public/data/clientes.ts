@@ -4,7 +4,7 @@ export interface Cliente {
   lastname: string;
   dni: string;
   phone: string;
-  trips: number; // New property
+  trips: number;
 }
 
 const clientes: Cliente[] = [

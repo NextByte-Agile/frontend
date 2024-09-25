@@ -20,13 +20,13 @@ const VehiculosPage = () => {
   const [vehiculosList, setVehiculosList] = useState<Vehiculo[]>(vehiculos);
 
   const filteredVehiculos = vehiculosList.filter(
-    (vehicle) =>
-      vehicle.plate.toLowerCase().includes(search.toLowerCase()) ||
-      vehicle.brand.toLowerCase().includes(search.toLowerCase()) ||
-      vehicle.model.toLowerCase().includes(search.toLowerCase())
+    (vehiculo) =>
+      vehiculo.plate.toLowerCase().includes(search.toLowerCase()) ||
+      vehiculo.brand.toLowerCase().includes(search.toLowerCase()) ||
+      vehiculo.model.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAddVehicleClick = () => {
+  const handleAddVehiculoClick = () => {
     setNewVehiculo({
       plate: "",
       brand: "",
@@ -64,7 +64,7 @@ const VehiculosPage = () => {
         ...prev,
         img: imageUrl,
       }));
-      setError(null); // Clear any previous error
+      setError(null);
     }
   };
 
@@ -140,7 +140,7 @@ const VehiculosPage = () => {
         <button
           className="rounded-lg bg-gray-800 text-white py-3 px-6 text-xs font-bold shadow-md shadow-gray-600/20 transition-all hover:bg-gray-600 hover:shadow-lg hover:shadow-gray-600/40"
           data-ripple-light="true"
-          onClick={handleAddVehicleClick}
+          onClick={handleAddVehiculoClick}
         >
           Añadir vehículo
         </button>
@@ -191,29 +191,29 @@ const VehiculosPage = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredVehiculos.map((vehicle, index) => (
+          {filteredVehiculos.map((vehiculo, index) => (
             <tr
               key={index}
               className="border-b text-center bg-white lg:hover:bg-gray-100"
             >
               <td className="py-2 px-4 flex justify-center">
                 <Image
-                  src={vehicle.img}
+                  src={vehiculo.img}
                   width={100}
                   height={100}
-                  alt={vehicle.brand + " " + vehicle.model}
+                  alt={vehiculo.brand + " " + vehiculo.model}
                 />
               </td>
-              <td className="py-2 px-4">{vehicle.plate}</td>
-              <td className="py-2 px-4">{vehicle.brand}</td>
-              <td className="py-2 px-4">{vehicle.model}</td>
-              <td className="py-2 px-4">{vehicle.year}</td>
-              <td className="py-2 px-4">{vehicle.lastMaintenance}</td>
+              <td className="py-2 px-4">{vehiculo.plate}</td>
+              <td className="py-2 px-4">{vehiculo.brand}</td>
+              <td className="py-2 px-4">{vehiculo.model}</td>
+              <td className="py-2 px-4">{vehiculo.year}</td>
+              <td className="py-2 px-4">{vehiculo.lastMaintenance}</td>
               <td className="py-2 px-4">
-                {vehicle.nextMaintenance}
+                {vehiculo.nextMaintenance}
                 <br />
                 <span className="text-gray-600 text-sm">
-                  ({calculateTimeDifference(vehicle.nextMaintenance)})
+                  ({calculateTimeDifference(vehiculo.nextMaintenance)})
                 </span>
               </td>
             </tr>

@@ -75,7 +75,7 @@ const ClientesPage = () => {
     const newId = clientesList.length
       ? clientesList[clientesList.length - 1].id + 1
       : 1;
-    const clienteToAdd = { ...newCliente, id: newId, trips: 0 }; // Initialize trips to 0
+    const clienteToAdd = { ...newCliente, id: newId, trips: 0 };
     setClientesList((prev) => [...prev, clienteToAdd]);
     setIsPopupOpen(false);
   };
