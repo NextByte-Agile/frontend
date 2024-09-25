@@ -1,14 +1,23 @@
 "use client";
 import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import vehiculos from "../../../public/data/vehiculos";
+import vehiculos, { Vehiculo } from "../../../public/data/vehiculos";
 import Image from "next/image";
 
 const VehiculosPage = () => {
   const [search, setSearch] = useState("");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [newVehiculo, setNewVehiculo] = useState<Omit<Vehiculo, "id">>({
+    plate: "",
+    brand: "",
+    model: "",
+    year: new Date().getFullYear(),
+    img: "",
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [vehiculosList, setVehiculosList] = useState<Vehiculo[]>(vehiculos);
 
-  const filteredVehiculos = vehiculos.filter(
+  const filteredVehiculos = vehiculosList.filter(
     (vehicle) =>
       vehicle.plate.toLowerCase().includes(search.toLowerCase()) ||
       vehicle.brand.toLowerCase().includes(search.toLowerCase()) ||
@@ -16,10 +25,67 @@ const VehiculosPage = () => {
   );
 
   const handleAddVehicleClick = () => {
+    setNewVehiculo({
+      plate: "",
+      brand: "",
+      model: "",
+      year: new Date().getFullYear(),
+      img: "",
+    });
+    setError(null);
     setIsPopupOpen(true);
   };
 
   const handleClosePopup = () => {
+    setIsPopupOpen(false);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewVehiculo((prev) => ({
+      ...prev,
+      [name]: name === "year" ? Number(value) : value,
+    }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        setError("El archivo debe ser una imagen.");
+        return;
+      }
+      const imageUrl = URL.createObjectURL(file);
+      setNewVehiculo((prev) => ({
+        ...prev,
+        img: imageUrl,
+      }));
+      setError(null); // Clear any previous error
+    }
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const currentYear = new Date().getFullYear();
+    if (
+      !newVehiculo.plate ||
+      !newVehiculo.brand ||
+      !newVehiculo.model ||
+      !newVehiculo.year ||
+      !newVehiculo.img
+    ) {
+      setError("Todos los campos son obligatorios.");
+      return;
+    }
+    if (newVehiculo.year > currentYear + 1) {
+      setError(`El año del vehículo no puede ser mayor a ${currentYear + 1}.`);
+      return;
+    }
+    const newId = vehiculosList.length
+      ? vehiculosList[vehiculosList.length - 1].id + 1
+      : 1;
+    const vehiculoToAdd = { ...newVehiculo, id: newId };
+    setVehiculosList((prev) => [...prev, vehiculoToAdd]);
     setIsPopupOpen(false);
   };
 
@@ -101,11 +167,14 @@ const VehiculosPage = () => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-8 rounded-lg shadow-lg">
             <h2 className="text-xl font-bold mb-4">Añadir Vehículo</h2>
-            <form>
+            <form onSubmit={handleFormSubmit}>
               <div className="mb-4">
                 <label className="block text-gray-700">Imagen</label>
                 <input
                   type="file"
+                  name="img"
+                  accept="image/*"
+                  onChange={handleImageChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
@@ -113,6 +182,9 @@ const VehiculosPage = () => {
                 <label className="block text-gray-700">Marca</label>
                 <input
                   type="text"
+                  name="brand"
+                  value={newVehiculo.brand}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
@@ -120,6 +192,9 @@ const VehiculosPage = () => {
                 <label className="block text-gray-700">Modelo</label>
                 <input
                   type="text"
+                  name="model"
+                  value={newVehiculo.model}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
@@ -127,16 +202,23 @@ const VehiculosPage = () => {
                 <label className="block text-gray-700">Placa</label>
                 <input
                   type="text"
+                  name="plate"
+                  value={newVehiculo.plate}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700">Año</label>
                 <input
-                  type="text"
+                  type="number"
+                  name="year"
+                  value={newVehiculo.year}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
+              {error && <p className="text-red-500">{error}</p>}
               <div className="flex justify-end">
                 <button
                   type="button"
