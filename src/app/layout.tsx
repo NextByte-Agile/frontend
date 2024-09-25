@@ -15,9 +15,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Gestión de Flota de Vehículos",
+  title: "E.T. 25 DE MAYO S.A.C.",
   description:
-    "Aplicación de gestión de flota de vehículos para empresa de transporte",
+    "Aplicación de gestión de minivans para empresa de transporte",
 };
 
 export default function RootLayout({
