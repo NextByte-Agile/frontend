@@ -28,7 +28,7 @@ export default function RutasPage() {
                   key={index}
                   src={foto}
                   alt={`${ruta.partida} a ${ruta.destino} ${index + 1}`}
-                  className="w-20 h-14 object-cover rounded border border-gray-200"
+                  className="w-20 h-14 object-cover rounded border border-zinc-200"
                 />
               ))}
             </div>

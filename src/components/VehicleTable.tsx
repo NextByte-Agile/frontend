@@ -3,19 +3,32 @@ import vehiculos from "../../public/data/vehiculos";
 
 const VehicleTable = () => {
   return (
-    <table className="w-full bg-white text-black shadow-md rounded-md">
+    <table className="w-full shadow-md rounded-md border-collapse table-auto">
       <thead>
-        <tr className="bg-gray-200 uppercase text-sm">
-          <th className="py-2 px-4">Foto</th>
-          <th className="py-2 px-4">Placa</th>
-          <th className="py-2 px-4">Marca</th>
-          <th className="py-2 px-4">Modelo</th>
-          <th className="py-2 px-4">Año</th>
+        <tr className="uppercase text-sm">
+          <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
+            Foto
+          </th>
+          <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
+            Placa
+          </th>
+          <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
+            Marca
+          </th>
+          <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
+            Modelo
+          </th>
+          <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
+            Año
+          </th>
         </tr>
       </thead>
       <tbody>
         {vehiculos.map((vehicle, index) => (
-          <tr key={index} className="border-b text-center">
+          <tr
+            key={index}
+            className="border-b text-center bg-white lg:hover:bg-gray-100"
+          >
             <td className="py-2 px-4 flex justify-center">
               <Image
                 src={vehicle.img}

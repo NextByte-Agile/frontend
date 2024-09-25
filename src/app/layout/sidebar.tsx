@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const Sidebar = () => {
   return (
-    <div className="w-64 h-screen bg-gray-800 text-white flex flex-col p-4">
+    <div className="w-64 h-screen fixed bg-gray-800 text-white flex flex-col p-4">
       <Image
         src={logo}
         width={200}
@@ -13,11 +13,11 @@ const Sidebar = () => {
         className="mx-auto rounded-md my-8"
       />
       <nav className="flex flex-col gap-4">
-        <Link href="/vehiculos" className="hover:bg-gray-700 p-2 rounded">
-          Vehículos
+        <Link href="/vehiculos" className="hover:bg-gray-600 p-2 rounded">
+          Mis Vehículos
         </Link>
-        <Link href="/rutas" className="hover:bg-gray-700 p-2 rounded">
-          Rutas
+        <Link href="/rutas" className="hover:bg-gray-600 p-2 rounded">
+          Mis Rutas
         </Link>
       </nav>
         <Link href="/login" className="mt-auto hover:bg-red-700 p-2 rounded ">

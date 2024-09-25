@@ -12,7 +12,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
+    <div className="flex items-center justify-center h-screen bg-zinc-100">
       <div className="w-96 p-8 bg-white text-black shadow-md rounded-md">
         <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
         <input
@@ -31,7 +31,7 @@ const Login = () => {
         />
         <button
           onClick={handleLogin}
-          className="w-full p-2 bg-blue-500 text-white rounded"
+          className="w-full p-2 bg-blue-500 rounded"
         >
           Login
         </button>

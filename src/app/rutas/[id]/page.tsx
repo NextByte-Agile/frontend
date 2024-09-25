@@ -50,9 +50,9 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
 
       <h2 className="text-xl font-semibold mb-4">Próximos Viajes</h2>
       {viajesDeRuta.length > 0 ? (
-        <table className="min-w-full bg-white text-black border border-gray-300">
+        <table className="min-w-full bg-white text-black border border-zinc-300">
           <thead>
-            <tr className="bg-gray-200">
+            <tr className="bg-zinc-200">
               <th className="py-2 px-4 border-b">Fecha</th>
               <th className="py-2 px-4 border-b">Hora</th>
               <th className="py-2 px-4 border-b">Precio</th>
