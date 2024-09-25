@@ -2,7 +2,7 @@ import vehiculos from "/public/data/vehiculos";
 
 const VehicleTable = () => {
   return (
-    <table className="w-full bg-white text-gray-600 shadow-md rounded-md">
+    <table className="w-full bg-white text-black shadow-md rounded-md">
       <thead>
         <tr className="bg-gray-200 uppercase text-sm">
           <th className="py-2 px-4">Placa</th>

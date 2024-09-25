@@ -13,7 +13,7 @@ const Login = () => {
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="w-96 p-8 bg-white shadow-md rounded-md">
+      <div className="w-96 p-8 bg-white text-black shadow-md rounded-md">
         <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
         <input
           type="text"

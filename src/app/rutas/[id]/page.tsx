@@ -11,20 +11,17 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const rutaId = parseInt(params.id, 10);
 
-  // Encuentra la ruta seleccionada
   const ruta = rutas.find((r) => r.id === rutaId);
 
-  // Filtra los viajes que corresponden a la ruta seleccionada
   const viajesDeRuta = viajes.filter((viaje) => viaje.rutaId === rutaId);
 
-  // Redirecciona si la ruta no existe
   useEffect(() => {
     if (!ruta) {
       router.push("/rutas");
     }
   }, [ruta, router]);
 
-  if (!ruta) return null; // Retornar null si la ruta no existe
+  if (!ruta) return null;
 
   return (
     <div className="p-8">
@@ -53,7 +50,7 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
 
       <h2 className="text-xl font-semibold mb-4">Próximos Viajes</h2>
       {viajesDeRuta.length > 0 ? (
-        <table className="min-w-full bg-white border border-gray-300">
+        <table className="min-w-full bg-white text-black border border-gray-300">
           <thead>
             <tr className="bg-gray-200">
               <th className="py-2 px-4 border-b">Fecha</th>

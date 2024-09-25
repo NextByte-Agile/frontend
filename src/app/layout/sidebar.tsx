@@ -20,6 +20,9 @@ const Sidebar = () => {
           Rutas
         </Link>
       </nav>
+        <Link href="/login" className="mt-auto hover:bg-red-700 p-2 rounded ">
+          Logout
+        </Link>
     </div>
   );
 };
