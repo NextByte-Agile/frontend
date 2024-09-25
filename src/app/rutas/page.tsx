@@ -1,12 +1,19 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { rutas } from "../../../public/data/rutas";
+import { rutas as initialRutas, Ruta } from "../../../public/data/rutas";
 import { FaSearch } from "react-icons/fa";
 
 export default function RutasPage() {
   const [search, setSearch] = useState("");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [newRuta, setNewRuta] = useState<Omit<Ruta, "id">>({
+    partida: "",
+    destino: "",
+    fotos: [],
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [rutas, setRutas] = useState<Ruta[]>(initialRutas);
   const router = useRouter();
 
   const handleRutaClick = (id: number) => {
@@ -14,10 +21,63 @@ export default function RutasPage() {
   };
 
   const handleAddRutaClick = () => {
+    setNewRuta({
+      partida: "",
+      destino: "",
+      fotos: [],
+    });
+    setError(null);
     setIsPopupOpen(true);
   };
 
   const handleClosePopup = () => {
+    setIsPopupOpen(false);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewRuta((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const imageUrls = Array.from(files).map((file) => {
+        if (!file.type.startsWith("image/")) {
+          setError("Todos los archivos deben ser imágenes.");
+          return "";
+        }
+        return URL.createObjectURL(file);
+      });
+      setNewRuta((prev) => ({
+        ...prev,
+        fotos: imageUrls.filter((url) => url !== ""),
+      }));
+      setError(null); // Clear any previous error
+    }
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newRuta.partida || !newRuta.destino || newRuta.fotos.length === 0) {
+      setError("Todos los campos son obligatorios.");
+      return;
+    }
+    const isDuplicate = rutas.some(
+      (ruta) =>
+        ruta.partida.toLowerCase() === newRuta.partida.toLowerCase() &&
+        ruta.destino.toLowerCase() === newRuta.destino.toLowerCase()
+    );
+    if (isDuplicate) {
+      setError("Ya existe una ruta con la misma partida y destino.");
+      return;
+    }
+    const newId = rutas.length ? rutas[rutas.length - 1].id + 1 : 1;
+    const rutaToAdd = { ...newRuta, id: newId };
+    setRutas((prev) => [...prev, rutaToAdd]);
     setIsPopupOpen(false);
   };
 
@@ -86,11 +146,14 @@ export default function RutasPage() {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-8 rounded-lg shadow-lg">
             <h2 className="text-xl font-bold mb-4">Añadir Ruta</h2>
-            <form>
+            <form onSubmit={handleFormSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700">Imagen</label>
+                <label className="block text-gray-700">Imágenes</label>
                 <input
                   type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
@@ -98,6 +161,9 @@ export default function RutasPage() {
                 <label className="block text-gray-700">Partida</label>
                 <input
                   type="text"
+                  name="partida"
+                  value={newRuta.partida}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
@@ -105,9 +171,13 @@ export default function RutasPage() {
                 <label className="block text-gray-700">Destino</label>
                 <input
                   type="text"
+                  name="destino"
+                  value={newRuta.destino}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
+              {error && <p className="text-red-500">{error}</p>}
               <div className="flex justify-end">
                 <button
                   type="button"
