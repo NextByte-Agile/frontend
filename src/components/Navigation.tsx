@@ -1,5 +1,5 @@
 "use client";
-import Navbar from "@/app/layout/navbar";
+// import Navbar from "@/app/layout/navbar";
 import Sidebar from "@/app/layout/sidebar";
 import { usePathname } from "next/navigation";
 
@@ -17,10 +17,7 @@ const Navigation = ({ children }: NavigationProps) => {
       {isAuthenticatedRoute && (
         <div className="flex h-screen">
           <Sidebar />
-          <div className="flex-1">
-            <Navbar />
-            <div className="p-6">{children}</div>
-          </div>
+          <div className="flex-1 ml-64 p-6">{children}</div>
         </div>
       )}
       {!isAuthenticatedRoute && children}

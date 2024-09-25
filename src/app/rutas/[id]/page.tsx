@@ -6,6 +6,7 @@ import { rutas } from "../../../../public/data/rutas";
 import { viajes } from "../../../../public/data/viajes";
 import vehicles from "../../../../public/data/vehiculos";
 import Image from "next/image";
+import { FaArrowLeft } from "react-icons/fa";
 
 export default function RutaDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -27,12 +28,14 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
     <div className="p-8">
       <button
         onClick={() => router.push("/rutas")}
-        className="text-blue-500 underline mb-4"
+        className="flex items-center rounded-lg bg-gray-800 text-white py-2 px-4 mb-4 text-xs font-bold shadow-md shadow-gray-600/20 transition-all hover:bg-gray-600 hover:shadow-lg hover:shadow-gray-600/40"
+        data-ripple-light="true"
       >
+        <FaArrowLeft className="inline-block mr-2" />
         Volver a las rutas
       </button>
       <h1 className="text-2xl font-bold mb-4">
-        {ruta.partida} - {ruta.destino}
+        Ruta: {ruta.partida} - {ruta.destino}
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
@@ -50,21 +53,31 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
 
       <h2 className="text-xl font-semibold mb-4">Próximos Viajes</h2>
       {viajesDeRuta.length > 0 ? (
-        <table className="min-w-full bg-white text-black border border-gray-300">
+        <table className="w-full shadow-md rounded-md border-collapse table-auto">
           <thead>
-            <tr className="bg-gray-200">
-              <th className="py-2 px-4 border-b">Fecha</th>
-              <th className="py-2 px-4 border-b">Hora</th>
-              <th className="py-2 px-4 border-b">Precio</th>
-              <th className="py-2 px-4 border-b">Vehículo</th>
+            <tr className="uppercase text-sm">
+              <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
+                Fecha
+              </th>
+              <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
+                Hora
+              </th>
+              <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
+                Precio
+              </th>
+              <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
+                Vehículo
+              </th>
             </tr>
           </thead>
           <tbody>
             {viajesDeRuta.map((viaje, index) => {
               const vehiculo = vehicles.find((v) => v.id === viaje.vehiculoId);
-
               return (
-                <tr key={index} className="text-center border-t">
+                <tr
+                  key={index}
+                  className="border-b text-center bg-white lg:hover:bg-gray-100"
+                >
                   <td className="py-2 px-4 border-b">{viaje.fecha}</td>
                   <td className="py-2 px-4 border-b">{viaje.hora}</td>
                   <td className="py-2 px-4 border-b">
