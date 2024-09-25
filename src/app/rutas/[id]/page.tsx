@@ -2,9 +2,9 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { rutas } from "/public/data/rutas";
-import { viajes } from "/public/data/viajes";
-import vehicles from "/public/data/vehiculos";
+import { rutas } from "../../../../public/data/rutas";
+import { viajes } from "../../../../public/data/viajes";
+import vehicles from "../../../../public/data/vehiculos";
 import Image from "next/image";
 
 export default function RutaDetailPage({ params }: { params: { id: string } }) {
