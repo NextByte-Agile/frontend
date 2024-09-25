@@ -22,13 +22,13 @@ export default function RutasPage() {
             <h2 className="text-xl font-semibold">
               {ruta.partida} - {ruta.destino}
             </h2>
-            <div className="flex space-x-2 mt-2">
+            <div className="flex space-x-2 mt-2 overflow-hidden whitespace-nowrap">
               {ruta.fotos.map((foto, index) => (
                 <img
                   key={index}
                   src={foto}
                   alt={`${ruta.partida} a ${ruta.destino} ${index + 1}`}
-                  className="w-24 h-16 object-cover rounded"
+                  className="w-20 h-14 object-cover rounded border border-gray-200"
                 />
               ))}
             </div>
