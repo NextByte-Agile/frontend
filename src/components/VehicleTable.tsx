@@ -1,5 +1,5 @@
 import Image from "next/image";
-import vehiculos from "/public/data/vehiculos";
+import vehiculos from "../../public/data/vehiculos";
 
 const VehicleTable = () => {
   return (
