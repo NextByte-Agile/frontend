@@ -1,6 +1,6 @@
-import VehicleTable from '../../components/VehicleTable';
+import VehicleTable from '@/components/VehicleTable';
 
-const VehiclesPage = () => {
+const VehiculosPage = () => {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Lista de Vehículos</h1>
@@ -9,4 +9,4 @@ const VehiclesPage = () => {
   );
 };
 
-export default VehiclesPage;
+export default VehiculosPage;
