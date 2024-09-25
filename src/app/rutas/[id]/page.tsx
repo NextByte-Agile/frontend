@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { rutas } from "../../../../public/data/rutas";
-import { viajes } from "../../../../public/data/viajes";
+import { Viaje, viajes as initialViajes } from "../../../../public/data/viajes";
 import vehiculos from "../../../../public/data/vehiculos";
 import Image from "next/image";
 import { FaArrowLeft } from "react-icons/fa";
@@ -13,9 +13,19 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
 
   const ruta = rutas.find((r) => r.id === rutaId);
 
-  const viajesDeRuta = viajes.filter((viaje) => viaje.rutaId === rutaId);
-
+  const [viajes, setViajes] = useState<Viaje[]>(
+    initialViajes.filter((viaje) => viaje.rutaId === rutaId)
+  );
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const initialNewViajeState = {
+    fecha: "",
+    hora: "",
+    precio: 0,
+    vehiculoId: vehiculos[0]?.id || 0,
+  };
+  const [newViaje, setNewViaje] =
+    useState<Omit<Viaje, "rutaId">>(initialNewViajeState);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!ruta) {
@@ -26,11 +36,65 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
   if (!ruta) return null;
 
   const handleAddViajeClick = () => {
+    setNewViaje(initialNewViajeState); // Reset form fields
+    setError(null); // Reset error
     setIsPopupOpen(true);
   };
 
   const handleClosePopup = () => {
     setIsPopupOpen(false);
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setNewViaje((prev) => ({
+      ...prev,
+      [name]:
+        name === "precio" || name === "vehiculoId" ? Number(value) : value,
+    }));
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isValidDateTime(newViaje.fecha, newViaje.hora)) {
+      setError("La fecha y hora deben ser posteriores a la actual.");
+      return;
+    }
+    if (newViaje.precio < 0) {
+      setError("El precio no puede ser negativo.");
+      return;
+    }
+    const viajeToAdd = { ...newViaje, rutaId };
+    setViajes((prev) => {
+      const updatedViajes = [...prev, viajeToAdd];
+      updatedViajes.sort((a, b) => {
+        const dateA = new Date(`${a.fecha}T${a.hora}`);
+        const dateB = new Date(`${b.fecha}T${b.hora}`);
+        return dateA.getTime() - dateB.getTime();
+      });
+      return updatedViajes;
+    });
+    setIsPopupOpen(false);
+  };
+
+  const isValidDateTime = (fecha: string, hora: string) => {
+    const now = new Date();
+    const [year, month, day] = fecha.split("-").map(Number);
+    const [hours, minutes] = hora.split(":").map(Number);
+    const selectedDate = new Date(year, month - 1, day, hours, minutes);
+    return selectedDate > now;
+  };
+
+  const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(":").map(Number);
+    if (isNaN(hours) || isNaN(minutes)) {
+      return "Hora inválida";
+    }
+    const period = hours >= 12 ? "PM" : "AM";
+    const formattedHours = hours % 12 || 12;
+    return `${formattedHours}:${minutes.toString().padStart(2, "0")} ${period}`;
   };
 
   return (
@@ -70,7 +134,7 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
           Añadir Viaje
         </button>
       </div>
-      {viajesDeRuta.length > 0 ? (
+      {viajes.length > 0 ? (
         <table className="w-full shadow-md rounded-md border-collapse table-auto">
           <thead>
             <tr className="uppercase text-sm">
@@ -89,7 +153,7 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
             </tr>
           </thead>
           <tbody>
-            {viajesDeRuta.map((viaje, index) => {
+            {viajes.map((viaje, index) => {
               const vehiculo = vehiculos.find((v) => v.id === viaje.vehiculoId);
               return (
                 <tr
@@ -97,7 +161,9 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
                   className="border-b text-center bg-white lg:hover:bg-gray-100"
                 >
                   <td className="py-2 px-4 border-b">{viaje.fecha}</td>
-                  <td className="py-2 px-4 border-b">{viaje.hora}</td>
+                  <td className="py-2 px-4 border-b">
+                    {formatTime(viaje.hora)}
+                  </td>
                   <td className="py-2 px-4 border-b">
                     S/ {viaje.precio.toFixed(2)}
                   </td>
@@ -119,11 +185,14 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-8 rounded-lg shadow-lg">
             <h2 className="text-xl font-bold mb-4">Añadir Viaje</h2>
-            <form>
+            <form onSubmit={handleFormSubmit}>
               <div className="mb-4">
                 <label className="block text-gray-700">Fecha</label>
                 <input
                   type="date"
+                  name="fecha"
+                  value={newViaje.fecha}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
@@ -131,6 +200,9 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
                 <label className="block text-gray-700">Hora</label>
                 <input
                   type="time"
+                  name="hora"
+                  value={newViaje.hora}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
@@ -138,12 +210,20 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
                 <label className="block text-gray-700">Precio</label>
                 <input
                   type="number"
+                  name="precio"
+                  value={newViaje.precio}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700">Asignar Vehículo</label>
-                <select className="w-full px-4 py-2 border rounded-lg">
+                <select
+                  name="vehiculoId"
+                  value={newViaje.vehiculoId}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border rounded-lg"
+                >
                   {vehiculos.map((vehiculo) => (
                     <option key={vehiculo.id} value={vehiculo.id}>
                       {vehiculo.brand} {vehiculo.model} ({vehiculo.plate})
@@ -151,6 +231,7 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
                   ))}
                 </select>
               </div>
+              {error && <p className="text-red-500">{error}</p>}
               <div className="flex justify-end">
                 <button
                   type="button"
