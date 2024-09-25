@@ -56,7 +56,7 @@ export default function RutasPage() {
         ...prev,
         fotos: imageUrls.filter((url) => url !== ""),
       }));
-      setError(null); // Clear any previous error
+      setError(null);
     }
   };
 

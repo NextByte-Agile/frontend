@@ -19,6 +19,9 @@ const Sidebar = () => {
         <Link href="/rutas" className="hover:bg-gray-600 p-2 rounded">
           Mis Rutas
         </Link>
+        <Link href="/clientes" className="hover:bg-gray-600 p-2 rounded">
+          Mis Clientes
+        </Link>
       </nav>
         <Link href="/login" className="mt-auto hover:bg-red-700 p-2 rounded ">
           Logout

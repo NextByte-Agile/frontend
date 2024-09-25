@@ -13,24 +13,28 @@ const VehiculosPage = () => {
     model: "",
     year: new Date().getFullYear(),
     img: "",
+    lastMaintenance: "",
+    nextMaintenance: "",
   });
   const [error, setError] = useState<string | null>(null);
   const [vehiculosList, setVehiculosList] = useState<Vehiculo[]>(vehiculos);
 
   const filteredVehiculos = vehiculosList.filter(
-    (vehicle) =>
-      vehicle.plate.toLowerCase().includes(search.toLowerCase()) ||
-      vehicle.brand.toLowerCase().includes(search.toLowerCase()) ||
-      vehicle.model.toLowerCase().includes(search.toLowerCase())
+    (vehiculo) =>
+      vehiculo.plate.toLowerCase().includes(search.toLowerCase()) ||
+      vehiculo.brand.toLowerCase().includes(search.toLowerCase()) ||
+      vehiculo.model.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAddVehicleClick = () => {
+  const handleAddVehiculoClick = () => {
     setNewVehiculo({
       plate: "",
       brand: "",
       model: "",
       year: new Date().getFullYear(),
       img: "",
+      lastMaintenance: "",
+      nextMaintenance: "",
     });
     setError(null);
     setIsPopupOpen(true);
@@ -60,25 +64,65 @@ const VehiculosPage = () => {
         ...prev,
         img: imageUrl,
       }));
-      setError(null); // Clear any previous error
+      setError(null);
+    }
+  };
+
+  const calculateTimeDifference = (date: string) => {
+    const currentDate = new Date();
+    const targetDate = new Date(date);
+    const diffTime = Math.abs(targetDate.getTime() - currentDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 7) {
+      return `en ${diffDays} días`;
+    } else if (diffDays < 30) {
+      const diffWeeks = Math.ceil(diffDays / 7);
+      return `en ${diffWeeks} semanas`;
+    } else {
+      const diffMonths = Math.ceil(diffDays / 30);
+      return `en ${diffMonths} meses`;
     }
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const currentYear = new Date().getFullYear();
+    const currentDate = new Date().toISOString().split("T")[0];
     if (
       !newVehiculo.plate ||
       !newVehiculo.brand ||
       !newVehiculo.model ||
       !newVehiculo.year ||
-      !newVehiculo.img
+      !newVehiculo.img ||
+      !newVehiculo.lastMaintenance ||
+      !newVehiculo.nextMaintenance
     ) {
       setError("Todos los campos son obligatorios.");
       return;
     }
     if (newVehiculo.year > currentYear + 1) {
       setError(`El año del vehículo no puede ser mayor a ${currentYear + 1}.`);
+      return;
+    }
+    if (newVehiculo.lastMaintenance >= currentDate) {
+      setError(
+        "La fecha del último mantenimiento debe ser menor a la fecha actual."
+      );
+      return;
+    }
+    if (newVehiculo.nextMaintenance <= currentDate) {
+      setError(
+        "La fecha del próximo mantenimiento debe ser mayor a la fecha actual."
+      );
+      return;
+    }
+    const isDuplicate = vehiculosList.some(
+      (vehiculo) =>
+        vehiculo.plate.toLowerCase() === newVehiculo.plate.toLowerCase()
+    );
+    if (isDuplicate) {
+      setError("Ya existe un vehículo con la misma placa.");
       return;
     }
     const newId = vehiculosList.length
@@ -96,7 +140,7 @@ const VehiculosPage = () => {
         <button
           className="rounded-lg bg-gray-800 text-white py-3 px-6 text-xs font-bold shadow-md shadow-gray-600/20 transition-all hover:bg-gray-600 hover:shadow-lg hover:shadow-gray-600/40"
           data-ripple-light="true"
-          onClick={handleAddVehicleClick}
+          onClick={handleAddVehiculoClick}
         >
           Añadir vehículo
         </button>
@@ -138,26 +182,40 @@ const VehiculosPage = () => {
             <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
               Año
             </th>
+            <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
+              Últ. Mantenimiento
+            </th>
+            <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
+              Próx. Mantenimiento
+            </th>
           </tr>
         </thead>
         <tbody>
-          {filteredVehiculos.map((vehicle, index) => (
+          {filteredVehiculos.map((vehiculo, index) => (
             <tr
               key={index}
               className="border-b text-center bg-white lg:hover:bg-gray-100"
             >
               <td className="py-2 px-4 flex justify-center">
                 <Image
-                  src={vehicle.img}
+                  src={vehiculo.img}
                   width={100}
                   height={100}
-                  alt={vehicle.brand + " " + vehicle.model}
+                  alt={vehiculo.brand + " " + vehiculo.model}
                 />
               </td>
-              <td className="py-2 px-4">{vehicle.plate}</td>
-              <td className="py-2 px-4">{vehicle.brand}</td>
-              <td className="py-2 px-4">{vehicle.model}</td>
-              <td className="py-2 px-4">{vehicle.year}</td>
+              <td className="py-2 px-4">{vehiculo.plate}</td>
+              <td className="py-2 px-4">{vehiculo.brand}</td>
+              <td className="py-2 px-4">{vehiculo.model}</td>
+              <td className="py-2 px-4">{vehiculo.year}</td>
+              <td className="py-2 px-4">{vehiculo.lastMaintenance}</td>
+              <td className="py-2 px-4">
+                {vehiculo.nextMaintenance}
+                <br />
+                <span className="text-gray-600 text-sm">
+                  ({calculateTimeDifference(vehiculo.nextMaintenance)})
+                </span>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -214,6 +272,30 @@ const VehiculosPage = () => {
                   type="number"
                   name="year"
                   value={newVehiculo.year}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border rounded-lg"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700">
+                  Último Mantenimiento
+                </label>
+                <input
+                  type="date"
+                  name="lastMaintenance"
+                  value={newVehiculo.lastMaintenance}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border rounded-lg"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700">
+                  Próximo Mantenimiento
+                </label>
+                <input
+                  type="date"
+                  name="nextMaintenance"
+                  value={newVehiculo.nextMaintenance}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
