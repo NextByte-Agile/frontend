@@ -218,7 +218,7 @@ const ClientesPage = () => {
 
       {isPopupOpen && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-8 rounded-lg shadow-lg">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-h-[90vh] overflow-auto">
             <h2 className="text-xl font-bold mb-4">Añadir Cliente</h2>
             <form onSubmit={handleFormSubmit}>
               <div className="mb-4">
