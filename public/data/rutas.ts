@@ -1,4 +1,3 @@
-// src/data/rutas.ts
 export interface Ruta {
   id: number;
   partida: string;
