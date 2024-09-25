@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
-import { FaSearch } from "react-icons/fa";
+import { FaFileCsv, FaFileExcel, FaSearch } from "react-icons/fa";
+import { utils, writeFile } from "xlsx";
+import Papa from "papaparse";
 import clientes, { Cliente } from "../../../public/data/clientes";
 
 const ClientesPage = () => {
@@ -80,6 +82,51 @@ const ClientesPage = () => {
     setIsPopupOpen(false);
   };
 
+  const formatCurrency = (value: number) => {
+    return `S/. ${value.toLocaleString("es-PE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
+  const exportToExcel = () => {
+    const worksheet = utils.json_to_sheet(
+      filteredClientes.map((cliente) => ({
+        Nombre: cliente.name,
+        Apellido: cliente.lastname,
+        DNI: cliente.dni,
+        Teléfono: cliente.phone,
+        "Viajes Realizados": cliente.trips,
+        "Valor Generado": formatCurrency(cliente.trips * 30),
+      }))
+    );
+    const workbook = utils.book_new();
+    utils.book_append_sheet(workbook, worksheet, "Clientes");
+    writeFile(workbook, "clientes.xlsx");
+  };
+
+  const exportToCSV = () => {
+    const csv = Papa.unparse(
+      filteredClientes.map((cliente) => ({
+        Nombre: cliente.name,
+        Apellido: cliente.lastname,
+        DNI: cliente.dni,
+        Teléfono: cliente.phone,
+        "Viajes Realizados": cliente.trips,
+        "Valor Generado": formatCurrency(cliente.trips * 30),
+      }))
+    );
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "clientes.csv");
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="xl:p-8">
       <h1 className="text-2xl font-bold mb-4">Mis Clientes</h1>
@@ -111,6 +158,22 @@ const ClientesPage = () => {
           </div>
         </div>
       </div>
+      <div className="flex justify-end mb-4">
+        <button
+          className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg mr-2"
+          onClick={exportToExcel}
+        >
+          <FaFileExcel className="w-4 h-4 mr-2" />
+          Exportar a Excel
+        </button>
+        <button
+          className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg"
+          onClick={exportToCSV}
+        >
+          <FaFileCsv className="w-4 h-4 mr-2" />
+          Exportar a CSV
+        </button>
+      </div>
       <table className="w-full shadow-md rounded-md border-collapse table-auto">
         <thead>
           <tr className="uppercase text-sm">
@@ -129,6 +192,9 @@ const ClientesPage = () => {
             <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
               Viajes Realizados
             </th>
+            <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
+              Valor Generado
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -142,6 +208,9 @@ const ClientesPage = () => {
               <td className="py-2 px-4">{cliente.dni}</td>
               <td className="py-2 px-4">{cliente.phone}</td>
               <td className="py-2 px-4">{cliente.trips}</td>
+              <td className="py-2 px-4">
+                {formatCurrency(cliente.trips * 30)}
+              </td>
             </tr>
           ))}
         </tbody>
