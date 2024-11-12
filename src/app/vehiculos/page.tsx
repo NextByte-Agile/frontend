@@ -71,18 +71,28 @@ const VehiculosPage = () => {
   const calculateTimeDifference = (date: string) => {
     const currentDate = new Date();
     const targetDate = new Date(date);
-    const diffTime = Math.abs(targetDate.getTime() - currentDate.getTime());
+    const diffTime = targetDate.getTime() - currentDate.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 7) {
-      return `en ${diffDays} días`;
+  
+    if (diffDays < 0) {
+      return { text: `Hace ${Math.abs(diffDays)} días`, style: { color: 'red', fontWeight: 'bold' } };
+    } else if (diffDays === 0) {
+      return { text: 'Hoy', style: { color: 'red' } };
+    } else if (diffDays < 7) {
+      return { text: `en ${diffDays} días`, style: { color: 'orange' } };
     } else if (diffDays < 30) {
       const diffWeeks = Math.ceil(diffDays / 7);
-      return `en ${diffWeeks} semanas`;
+      return { text: `en ${diffWeeks} semanas`, style: {} };
     } else {
       const diffMonths = Math.ceil(diffDays / 30);
-      return `en ${diffMonths} meses`;
+      return { text: `en ${diffMonths} meses`, style: {} };
     }
+  };
+
+  const MaintenanceDate = ({ date }: { date: string }) => {
+    const { text, style } = calculateTimeDifference(date);
+  
+    return <span style={style}>{text}</span>;
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -213,7 +223,7 @@ const VehiculosPage = () => {
                 {vehiculo.nextMaintenance}
                 <br />
                 <span className="text-gray-600 text-sm">
-                  ({calculateTimeDifference(vehiculo.nextMaintenance)})
+                  (<MaintenanceDate date={vehiculo.nextMaintenance} />)
                 </span>
               </td>
             </tr>
