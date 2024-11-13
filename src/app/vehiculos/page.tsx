@@ -1,40 +1,53 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import vehiculos, { Vehiculo } from "../../../public/data/vehiculos";
 import Image from "next/image";
+import { getVehiculos, addVehiculo } from "../../services/api";
+import { Vehiculo } from "./vehiculo";
 
 const VehiculosPage = () => {
   const [search, setSearch] = useState("");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [newVehiculo, setNewVehiculo] = useState<Omit<Vehiculo, "id">>({
-    plate: "",
-    brand: "",
-    model: "",
-    year: new Date().getFullYear(),
-    img: "",
-    lastMaintenance: "",
-    nextMaintenance: "",
+  const [newVehiculo, setNewVehiculo] = useState<Omit<Vehiculo, "idVehiculo">>({
+    marca: "",
+    anio: new Date().getFullYear(),
+    placa: "",
+    capacidadAsientos: 0,
+    foto: "",
+    fechaMantenimiento: "",
+    proximoMantenimiento: "",
   });
   const [error, setError] = useState<string | null>(null);
-  const [vehiculosList, setVehiculosList] = useState<Vehiculo[]>(vehiculos);
+  const [vehiculosList, setVehiculosList] = useState<Vehiculo[]>([]);
+
+  useEffect(() => {
+    const fetchVehiculos = async () => {
+      try {
+        const vehiculos = await getVehiculos();
+        setVehiculosList(vehiculos);
+      } catch (error) {
+        console.error("Error fetching vehiculos:", error);
+      }
+    };
+
+    fetchVehiculos();
+  }, []);
 
   const filteredVehiculos = vehiculosList.filter(
     (vehiculo) =>
-      vehiculo.plate.toLowerCase().includes(search.toLowerCase()) ||
-      vehiculo.brand.toLowerCase().includes(search.toLowerCase()) ||
-      vehiculo.model.toLowerCase().includes(search.toLowerCase())
+      vehiculo.placa.toLowerCase().includes(search.toLowerCase()) ||
+      vehiculo.marca.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleAddVehiculoClick = () => {
     setNewVehiculo({
-      plate: "",
-      brand: "",
-      model: "",
-      year: new Date().getFullYear(),
-      img: "",
-      lastMaintenance: "",
-      nextMaintenance: "",
+      marca: "",
+      anio: new Date().getFullYear(),
+      placa: "",
+      capacidadAsientos: 0,
+      foto: "",
+      fechaMantenimiento: "",
+      proximoMantenimiento: "",
     });
     setError(null);
     setIsPopupOpen(true);
@@ -48,7 +61,7 @@ const VehiculosPage = () => {
     const { name, value } = e.target;
     setNewVehiculo((prev) => ({
       ...prev,
-      [name]: name === "year" ? Number(value) : value,
+      [name]: name === "anio" ? Number(value) : value,
     }));
   };
 
@@ -62,7 +75,7 @@ const VehiculosPage = () => {
       const imageUrl = URL.createObjectURL(file);
       setNewVehiculo((prev) => ({
         ...prev,
-        img: imageUrl,
+        foto: imageUrl,
       }));
       setError(null);
     }
@@ -71,57 +84,46 @@ const VehiculosPage = () => {
   const calculateTimeDifference = (date: string) => {
     const currentDate = new Date();
     const targetDate = new Date(date);
-    const diffTime = targetDate.getTime() - currentDate.getTime();
+    const diffTime = Math.abs(targetDate.getTime() - currentDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-    if (diffDays < 0) {
-      return { text: `Hace ${Math.abs(diffDays)} días`, style: { color: 'red', fontWeight: 'bold' } };
-    } else if (diffDays === 0) {
-      return { text: 'Hoy', style: { color: 'red' } };
-    } else if (diffDays < 7) {
-      return { text: `en ${diffDays} días`, style: { color: 'orange' } };
+
+    if (diffDays < 7) {
+      return `en ${diffDays} días`;
     } else if (diffDays < 30) {
       const diffWeeks = Math.ceil(diffDays / 7);
-      return { text: `en ${diffWeeks} semanas`, style: {} };
+      return `en ${diffWeeks} semanas`;
     } else {
       const diffMonths = Math.ceil(diffDays / 30);
-      return { text: `en ${diffMonths} meses`, style: {} };
+      return `en ${diffMonths} meses`;
     }
   };
 
-  const MaintenanceDate = ({ date }: { date: string }) => {
-    const { text, style } = calculateTimeDifference(date);
-  
-    return <span style={style}>{text}</span>;
-  };
-
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const currentYear = new Date().getFullYear();
     const currentDate = new Date().toISOString().split("T")[0];
     if (
-      !newVehiculo.plate ||
-      !newVehiculo.brand ||
-      !newVehiculo.model ||
-      !newVehiculo.year ||
-      !newVehiculo.img ||
-      !newVehiculo.lastMaintenance ||
-      !newVehiculo.nextMaintenance
+      !newVehiculo.placa ||
+      !newVehiculo.marca ||
+      !newVehiculo.anio ||
+      !newVehiculo.foto ||
+      !newVehiculo.fechaMantenimiento ||
+      !newVehiculo.proximoMantenimiento
     ) {
       setError("Todos los campos son obligatorios.");
       return;
     }
-    if (newVehiculo.year > currentYear + 1) {
+    if (newVehiculo.anio > currentYear + 1) {
       setError(`El año del vehículo no puede ser mayor a ${currentYear + 1}.`);
       return;
     }
-    if (newVehiculo.lastMaintenance >= currentDate) {
+    if (newVehiculo.fechaMantenimiento >= currentDate) {
       setError(
         "La fecha del último mantenimiento debe ser menor a la fecha actual."
       );
       return;
     }
-    if (newVehiculo.nextMaintenance <= currentDate) {
+    if (newVehiculo.proximoMantenimiento <= currentDate) {
       setError(
         "La fecha del próximo mantenimiento debe ser mayor a la fecha actual."
       );
@@ -129,18 +131,21 @@ const VehiculosPage = () => {
     }
     const isDuplicate = vehiculosList.some(
       (vehiculo) =>
-        vehiculo.plate.toLowerCase() === newVehiculo.plate.toLowerCase()
+        vehiculo.placa.toLowerCase() === newVehiculo.placa.toLowerCase()
     );
     if (isDuplicate) {
       setError("Ya existe un vehículo con la misma placa.");
       return;
     }
-    const newId = vehiculosList.length
-      ? vehiculosList[vehiculosList.length - 1].id + 1
-      : 1;
-    const vehiculoToAdd = { ...newVehiculo, id: newId };
-    setVehiculosList((prev) => [...prev, vehiculoToAdd]);
-    setIsPopupOpen(false);
+
+    try {
+      const vehiculoToAdd = await addVehiculo(newVehiculo);
+      setVehiculosList((prev) => [...prev, vehiculoToAdd]);
+      setIsPopupOpen(false);
+    } catch (error) {
+      console.error("Error adding vehiculo:", error);
+      setError("Error al añadir el vehículo.");
+    }
   };
 
   return (
@@ -181,16 +186,16 @@ const VehiculosPage = () => {
               Foto
             </th>
             <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
-              Placa
-            </th>
-            <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
               Marca
             </th>
             <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
-              Modelo
+              Placa
             </th>
             <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
               Año
+            </th>
+            <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
+              Cap. asientos
             </th>
             <th className="py-2 px-4 font-bold uppercase bg-gray-300 text-gray-600 border border-gray-300 hidden lg:table-cell">
               Últ. Mantenimiento
@@ -208,22 +213,24 @@ const VehiculosPage = () => {
             >
               <td className="py-2 px-4 flex justify-center">
                 <Image
-                  src={vehiculo.img}
+                  priority={true}
+                  src={vehiculo.foto || "/car-placeholder.png"}
                   width={100}
                   height={100}
-                  alt={vehiculo.brand + " " + vehiculo.model}
+                  alt={vehiculo.marca}
+                  className="h-16 w-auto"
                 />
               </td>
-              <td className="py-2 px-4">{vehiculo.plate}</td>
-              <td className="py-2 px-4">{vehiculo.brand}</td>
-              <td className="py-2 px-4">{vehiculo.model}</td>
-              <td className="py-2 px-4">{vehiculo.year}</td>
-              <td className="py-2 px-4">{vehiculo.lastMaintenance}</td>
+              <td className="py-2 px-4">{vehiculo.marca}</td>
+              <td className="py-2 px-4">{vehiculo.placa}</td>
+              <td className="py-2 px-4">{vehiculo.anio}</td>
+              <td className="py-2 px-4">{vehiculo.capacidadAsientos}</td>
+              <td className="py-2 px-4">{vehiculo.fechaMantenimiento}</td>
               <td className="py-2 px-4">
-                {vehiculo.nextMaintenance}
+                {vehiculo.proximoMantenimiento}
                 <br />
                 <span className="text-gray-600 text-sm">
-                  (<MaintenanceDate date={vehiculo.nextMaintenance} />)
+                  ({calculateTimeDifference(vehiculo.proximoMantenimiento)})
                 </span>
               </td>
             </tr>
@@ -237,75 +244,92 @@ const VehiculosPage = () => {
             <h2 className="text-xl font-bold mb-4">Añadir Vehículo</h2>
             <form onSubmit={handleFormSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700">Imagen</label>
+                <label htmlFor="foto" className="block text-gray-700">
+                  Imagen
+                </label>
                 <input
+                  id="foto"
                   type="file"
-                  name="img"
+                  name="foto"
                   accept="image/*"
                   onChange={handleImageChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Marca</label>
+                <label htmlFor="marca" className="block text-gray-700">
+                  Marca
+                </label>
                 <input
                   type="text"
-                  name="brand"
-                  value={newVehiculo.brand}
+                  name="marca"
+                  value={newVehiculo.marca}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Modelo</label>
-                <input
-                  type="text"
-                  name="model"
-                  value={newVehiculo.model}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 border rounded-lg"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Placa</label>
-                <input
-                  type="text"
-                  name="plate"
-                  value={newVehiculo.plate}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 border rounded-lg"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Año</label>
+                <label htmlFor="anio" className="block text-gray-700">
+                  Año
+                </label>
                 <input
                   type="number"
-                  name="year"
-                  value={newVehiculo.year}
+                  name="anio"
+                  value={newVehiculo.anio}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">
+                <label htmlFor="placa" className="block text-gray-700">
+                  Placa
+                </label>
+                <input
+                  type="text"
+                  name="placa"
+                  value={newVehiculo.placa}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border rounded-lg"
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="capacidadAsientos" className="block text-gray-700">
+                  Capacidad Asientos
+                </label>
+                <input
+                  type="number"
+                  name="capacidadAsientos"
+                  value={newVehiculo.capacidadAsientos}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border rounded-lg"
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="fechaMantenimiento"
+                  className="block text-gray-700"
+                >
                   Último Mantenimiento
                 </label>
                 <input
                   type="date"
-                  name="lastMaintenance"
-                  value={newVehiculo.lastMaintenance}
+                  name="fechaMantenimiento"
+                  value={newVehiculo.fechaMantenimiento}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">
+                <label
+                  htmlFor="proximoMantenimiento"
+                  className="block text-gray-700"
+                >
                   Próximo Mantenimiento
                 </label>
                 <input
                   type="date"
-                  name="nextMaintenance"
-                  value={newVehiculo.nextMaintenance}
+                  name="proximoMantenimiento"
+                  value={newVehiculo.proximoMantenimiento}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
                 />

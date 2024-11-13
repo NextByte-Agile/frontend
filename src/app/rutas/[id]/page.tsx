@@ -114,6 +114,7 @@ export default function RutaDetailPage({ params }: { params: { id: string } }) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {ruta.fotos.map((foto, index) => (
           <Image
+            priority={true}
             key={index}
             src={foto}
             width={400}
