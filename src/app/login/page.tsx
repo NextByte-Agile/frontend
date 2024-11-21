@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import users from "../../../public/data/users";
 
 const Login = () => {
   const router = useRouter();
@@ -8,7 +9,14 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    router.push("/vehiculos");
+    const user = users.find(
+      (user) => user.dni === username && user.password === password
+    );
+    if (user) {
+      router.push("/vehiculos");
+    } else {
+      alert("Invalid credentials");
+    }
   };
 
   return (
