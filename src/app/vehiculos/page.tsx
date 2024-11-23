@@ -1,7 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { FaPen, FaSearch, FaTrash } from "react-icons/fa";
-import { getVehiculos, addVehiculo, updateVehiculo } from "../../services/api";
+import {
+  getVehiculos,
+  addVehiculo,
+  updateVehiculo,
+  deleteVehiculo,
+} from "../../services/api";
 import { Vehiculo } from "./vehiculo";
 
 const VehiculosPage = () => {
@@ -21,16 +26,16 @@ const VehiculosPage = () => {
   const [vehiculosList, setVehiculosList] = useState<Vehiculo[]>([]);
   const [currentVehiculo, setCurrentVehiculo] = useState<Vehiculo | null>(null);
 
-  useEffect(() => {
-    const fetchVehiculos = async () => {
-      try {
-        const vehiculos = await getVehiculos();
-        setVehiculosList(vehiculos);
-      } catch (error) {
-        console.error("Error fetching vehiculos:", error);
-      }
-    };
+  const fetchVehiculos = async () => {
+    try {
+      const vehiculos = await getVehiculos();
+      setVehiculosList(vehiculos);
+    } catch (error) {
+      console.error("Error fetching vehiculos:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchVehiculos();
   }, []);
 
@@ -133,10 +138,10 @@ const VehiculosPage = () => {
       return;
     }
     if (
-      newVehiculo.capacidadAsientos < 0 ||
+      newVehiculo.capacidadAsientos < 4 ||
       newVehiculo.capacidadAsientos > 40
     ) {
-      setError("El número de asientos debe estar entre 0 y 40.");
+      setError("El número de asientos debe estar entre 4 y 40.");
       return;
     }
     if (newVehiculo.fechaMantenimiento >= currentDate) {
@@ -206,6 +211,21 @@ const VehiculosPage = () => {
     } catch (error) {
       console.error("Error updating vehiculo:", error);
       setError("Error updating vehiculo");
+    }
+  };
+
+  const handleDelete = async (idVehiculo: number) => {
+    const confirmDelete = window.confirm(
+      "¿Estás seguro de que deseas eliminar este vehículo?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await deleteVehiculo(idVehiculo);
+      fetchVehiculos();
+      console.log(`Vehículo con ID ${idVehiculo} eliminado`);
+    } catch (error) {
+      console.error("Error eliminando el vehículo:", error);
     }
   };
 
@@ -302,7 +322,10 @@ const VehiculosPage = () => {
                   >
                     <FaPen className="h-4 w-4" />
                   </button>
-                  <button className="bg-red-800 text-white px-3 py-2 rounded-lg">
+                  <button
+                    className="bg-red-800 text-white px-3 py-2 rounded-lg"
+                    onClick={() => handleDelete(vehiculo.idVehiculo)}
+                  >
                     <FaTrash className="h-4 w-4" />
                   </button>
                 </div>
